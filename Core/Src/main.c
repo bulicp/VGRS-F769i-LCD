@@ -184,6 +184,11 @@ int main(void)
   }
   RetargetInit(&UART1Handle);
 
+  // Configure DMA2 for UART1:
+  if (DMA2_UART1_Config() != HAL_OK) {
+	  Error_Handler();
+  }
+
   // Configure DMA2 for SDRAM:
   if (DMA2_SDRAM_Config(&DMA2_SDRAM_Handle) != HAL_OK) {
 	  Error_Handler();
@@ -320,9 +325,11 @@ int main(void)
 	  strcat(time_str1, time_str2);
 	  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)"FMC SDRAM TEST", CENTER_MODE);
 	  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 80, (uint8_t *)time_str1, CENTER_MODE);
-	  //HAL_UART_Transmit(&UART1Handle, (uint8_t *)time_str1, strlen(time_str1), HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&UART1Handle, (uint8_t *)"\n", strlen("\n"), HAL_MAX_DELAY);
-	  printf("%s \n", time_str1);
+
+	  // Raje uporabi DMA prenos kot pa printf, ki dela na polling
+	  //printf("%s \n", time_str1);
+	  strcat(time_str1, "  \n");
+	  HAL_UART_Transmit_DMA(&UART1Handle, (uint8_t *)time_str1, strlen(time_str1));
 
 	  HAL_Delay(__DELAY);
 

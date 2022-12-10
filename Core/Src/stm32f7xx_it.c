@@ -38,6 +38,7 @@ extern SD_HandleTypeDef 				uSdHandle;
 extern TIM_HandleTypeDef    			TIM3Handle;
 extern UART_HandleTypeDef 				UART1Handle;
 extern DMA_HandleTypeDef    			DMA2_SDRAM_Handle;
+extern DMA_HandleTypeDef    			DMA2_UART1_Handle;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -298,7 +299,14 @@ void AUDIO_DFSDMx_DMAx_BUTTOM_LEFT_IRQHandler(void)
   */
 void AUDIO_DFSDMx_DMAx_BUTTOM_RIGHT_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(hAudioInButtomRightFilter.hdmaReg);
+	// Check if hAudioInButtomRightFilter is initialized (P.B. 9.12.2022)
+	if (hAudioInButtomRightFilter.State != HAL_DFSDM_FILTER_STATE_RESET) {
+		HAL_DMA_IRQHandler(hAudioInButtomRightFilter.hdmaReg);
+	}
+	//check if handler is initialized (P.B. 9.12.2022):
+	if (DMA2_UART1_Handle.State != HAL_DMA_STATE_RESET) {
+		HAL_DMA_IRQHandler(&DMA2_UART1_Handle);
+	}
 }
 
 /**

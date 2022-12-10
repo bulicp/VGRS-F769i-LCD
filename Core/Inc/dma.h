@@ -22,11 +22,17 @@
 #define DMA_SDRAM_CHANNEL                DMA_CHANNEL_0
 #define DMA_SRAM_INSTANCE_IRQ            DMA2_Stream1_IRQn
 #define DMA_SDRAM_INSTANCE_IRQHANDLER    DMA2_Stream1_IRQHandler
+
+#define DMA_UART1_INSTANCE               DMA2_Stream7
+#define DMA_UART1_CHANNEL                DMA_CHANNEL_4
+#define DMA_UART1_INSTANCE_IRQ           DMA2_Stream7_IRQn
+#define DMA_UART1_INSTANCE_IRQHANDLER    DMA2_Stream7_IRQHandler
 /* USER CODE END EC */
 
 extern SDRAM_HandleTypeDef 			sdramHand;
 
 
 HAL_StatusTypeDef DMA2_SDRAM_Config(DMA_HandleTypeDef* DmaHandle);
+HAL_StatusTypeDef DMA2_UART1_Config(void);
 
 #endif /* INC_DMA_H_ */
