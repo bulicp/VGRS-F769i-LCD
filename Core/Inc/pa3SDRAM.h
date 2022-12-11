@@ -30,7 +30,12 @@
   * @{
   */
 
-#define SDRAM_DEVICE_ADDR  ((uint32_t)0xC0000000)
+
+/*
+ * LCD Frame Buffer starts at 0xC0000000
+ *
+ */
+#define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00008000)
 #define SDRAM_DEVICE_SIZE  ((uint32_t)0x1000000)  /* SDRAM device size in MBytes */
 
 /* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_8  */

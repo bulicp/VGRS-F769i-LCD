@@ -202,6 +202,10 @@ int main(void)
   while(lcd_status != LCD_OK);
 
   BSP_LCD_LayerDefaultInit(0, LCD_FB_START_ADDRESS);
+
+
+  BSP_LCD_ReadPixel(BSP_LCD_GetXSize()-1, BSP_LCD_GetYSize()-1);
+
   BSP_LCD_Clear(LCD_COLOR_WHITE);
   /* Set LCD Foreground Layer  */
   BSP_LCD_SelectLayer(0);
@@ -214,12 +218,12 @@ int main(void)
   //BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
   /* Display LCD messages */
-  BSP_LCD_DisplayStringAt(0, 10+80, (uint8_t *)"STM32F769I BSP", CENTER_MODE);
+  BSP_LCD_DisplayStringAt(0, 10+20, (uint8_t *)"STM32F769I BSP", CENTER_MODE);
 #ifdef __VGRS__
-  BSP_LCD_DisplayStringAt(0, 35+80, (uint8_t *)"Vgrajeni sistemi 2022", CENTER_MODE);
+  BSP_LCD_DisplayStringAt(0, 35+20, (uint8_t *)"Vgrajeni sistemi 2022", CENTER_MODE);
 #endif
 #ifdef __ORS__
-  BSP_LCD_DisplayStringAt(0, 35+80, (uint8_t *)"Organizacija racunalniskih sistemov 2022", CENTER_MODE);
+  BSP_LCD_DisplayStringAt(0, 35+20, (uint8_t *)"Organizacija racunalniskih sistemov 2022", CENTER_MODE);
 #endif
 
 
