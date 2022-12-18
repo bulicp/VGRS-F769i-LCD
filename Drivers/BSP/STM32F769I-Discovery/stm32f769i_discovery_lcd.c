@@ -922,9 +922,11 @@ sFONT *BSP_LCD_GetFont(void)
 uint32_t BSP_LCD_ReadPixel(uint16_t Xpos, uint16_t Ypos)
 {
   uint32_t ret = 0;
+  volatile uint32_t address;
 
   if(hltdc_discovery.LayerCfg[ActiveLayer].PixelFormat == LTDC_PIXEL_FORMAT_ARGB8888)
   {
+	  address = (4*(Ypos*BSP_LCD_GetXSize() + Xpos));
     /* Read data value from SDRAM memory */
     ret = *(__IO uint32_t*) (hltdc_discovery.LayerCfg[ActiveLayer].FBStartAdress + (4*(Ypos*BSP_LCD_GetXSize() + Xpos)));
   }

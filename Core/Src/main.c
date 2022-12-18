@@ -44,7 +44,7 @@ typedef struct {                                // object data type
 /* USER CODE BEGIN PD */
 //#define __MEASURE__
 #ifdef __MEASURE__
-#define __DELAY 5
+#define __DELAY 2
 #else
 #define __DELAY 100
 #endif
@@ -189,6 +189,7 @@ int main(void)
 	  Error_Handler();
   }
 
+
   // Configure DMA2 for SDRAM:
   if (DMA2_SDRAM_Config(&DMA2_SDRAM_Handle) != HAL_OK) {
 	  Error_Handler();
@@ -228,6 +229,7 @@ int main(void)
 
 
 
+
   Init_SDRAM();
   simple_SDRAM_test();
 
@@ -243,8 +245,6 @@ int main(void)
   printf("Organizacija racunalniskih sistemov 2022 \n");
   printf("Vsebina v SDRAM:  \n");
   printf("%s", sdram_read_Buffer);
-
-
 
 
 #ifdef __ORS__
@@ -341,16 +341,12 @@ int main(void)
 
 #endif
 
-
-
   //BSP_LCD_SetFont(&Font16);
   BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
   BSP_LCD_FillRect(0, BSP_LCD_GetYSize()/2 + 35, BSP_LCD_GetXSize(), 60);
   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
   BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
   //BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 30, (uint8_t *)"Press User button to start :", CENTER_MODE);
-
-
 
   /* USER CODE END 2 */
 
@@ -634,12 +630,12 @@ void Task1(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(200);
+    osDelay(400);
     i++;
 
-    //osMutexAcquire(mutex, osWaitForever);
+    osMutexAcquire(mutex, osWaitForever);
     count ++;
-    //osMutexRelease(mutex);
+    osMutexRelease(mutex);
     sprintf((queue_element.buffer) , "Task %d ti posilja: %d", queue_element.Idx, count);
     osMessageQueuePut(mid_MsgQueue, &queue_element, 0U, osWaitForever);
 
@@ -658,11 +654,11 @@ void Task2(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  osDelay(250);
+	  osDelay(550);
 	  i--;
-	  //osMutexAcquire(mutex, osWaitForever);
+	  osMutexAcquire(mutex, osWaitForever);
       count ++;
-      //osMutexRelease(mutex);
+      osMutexRelease(mutex);
 	  sprintf((queue_element.buffer) , "Task %d ti posilja: %d", queue_element.Idx, count);
 	  osMessageQueuePut(mid_MsgQueue, &queue_element, 0U, osWaitForever);
 

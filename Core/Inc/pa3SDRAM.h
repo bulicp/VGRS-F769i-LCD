@@ -15,7 +15,6 @@
 
 /* Private define ------------------------------------------------------------*/
 #define SDRAM_BUFFER_SIZE        ((uint32_t)0x0100)   		// 256
-//#define WRITE_READ_ADDR        ((uint32_t)0x00000800)		//  2K offset
 #define MAT_ROWS			     ((uint32_t)64)
 //#define N 150
 #define N 2
@@ -35,15 +34,15 @@
  * LCD Frame Buffer starts at 0xC0000000
  *
  */
-#define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00008000)
-#define SDRAM_DEVICE_SIZE  ((uint32_t)0x1000000)  /* SDRAM device size in MBytes */
 
-/* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_8  */
-/* #define SDRAM_MEMORY_WIDTH            FMC_SDRAM_MEM_BUS_WIDTH_16 */
-// #define SDRAM_MEMORY_WIDTH               FMC_SDRAM_MEM_BUS_WIDTH_32
+// Bank 0 is ussed by LTDC controller (framebuffer), so it is recommended to
+// use another bank for general SDRAM access.
+// 128 Mbit 4-bank SDRAM = 16MB 4-bank SDRAM, 4 MB per bank, PB, 2022
+// 4 MB = 4 * 16^5 = 4*2^20
 
-//#define SDCLOCK_PERIOD                   FMC_SDRAM_CLOCK_PERIOD_2
-/* #define SDCLOCK_PERIOD                FMC_SDRAM_CLOCK_PERIOD_3 */
+#define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00400000) // 4MB offset
+#define SDRAM_DEVICE_SIZE  ((uint32_t)0x1000000)  /* SDRAM device size in MBytes, 16 MB */
+
 
 
 #define SDRAM_ROWS						 4096
