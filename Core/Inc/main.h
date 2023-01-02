@@ -97,7 +97,7 @@ void Log_demo(void);
 
 /* Private defines -----------------------------------------------------------*/
 
-//#define __VGRS__
+#define __VGRS__
 #ifndef __VGRS__
 #define __ORS__
 #endif

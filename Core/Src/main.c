@@ -27,16 +27,15 @@
 #include "pa3Timers.h"
 #include "uart.h"
 #include "dma.h"
+#include "can.h"
+#include "obd2.h"
 #include "retarget.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-typedef struct {                                // object data type
-  uint8_t buffer[32];
-  uint8_t Idx;
-} MSGQUEUE_OBJ_t;
+
 
 /* USER CODE END PTD */
 
@@ -75,14 +74,14 @@ osThreadId_t Task1Handle;
 const osThreadAttr_t Task1_attributes = {
   .name = "Task 1",
   .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 
 osThreadId_t Task2Handle;
 const osThreadAttr_t Task2_attributes = {
   .name = "Task 2",
   .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 
 osMessageQueueId_t mid_MsgQueue;                // message queue id
@@ -178,6 +177,16 @@ int main(void)
   /* Configure the Tamper push-button in GPIO Mode */
   BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_GPIO);
 
+  //if (CAN_Config_LoopBack() != HAL_OK) {
+  if (CAN1_Config(CAN_LOOPBACK_MODE) != HAL_OK) {
+	  Error_Handler();
+  }
+  //CAN_SendReceiveMessage();
+  //OBD2_SendQuery(0x01, OBD2_PID_VEHICLE_SPEED);
+  //OBD2_ReceiveData();
+
+
+
   /* Init UART1*/
   if (USART1_Init(&UART1Handle) != HAL_OK){
 	  Error_Handler();
@@ -228,7 +237,7 @@ int main(void)
 #endif
 
 
-
+#ifdef __ORS__
 
   Init_SDRAM();
   simple_SDRAM_test();
@@ -247,13 +256,16 @@ int main(void)
   printf("%s", sdram_read_Buffer);
 
 
-#ifdef __ORS__
+
   HAL_Delay(500);
   SDRAM_init_matrices();
   SDRAM_write_matrix();
 
 
+
   while (1){
+
+
 
 	  // Row-major order access:
 	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
@@ -330,6 +342,8 @@ int main(void)
 	  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)"FMC SDRAM TEST", CENTER_MODE);
 	  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 80, (uint8_t *)time_str1, CENTER_MODE);
 
+
+
 	  // Raje uporabi DMA prenos kot pa printf, ki dela na polling
 	  //printf("%s \n", time_str1);
 	  strcat(time_str1, "  \n");
@@ -337,16 +351,40 @@ int main(void)
 
 	  HAL_Delay(__DELAY);
 
+	  SDRAM_write_const();
+
   }
+
 
 #endif
 
   //BSP_LCD_SetFont(&Font16);
   BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-  BSP_LCD_FillRect(0, BSP_LCD_GetYSize()/2 + 35, BSP_LCD_GetXSize(), 60);
+  //BSP_LCD_FillRect(0, BSP_LCD_GetYSize()/2 + 35, BSP_LCD_GetXSize(), 60);
+  BSP_LCD_FillRect(0, 100, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(0, 220+4, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(0, 340+8, BSP_LCD_GetXSize()/3-2, 120);
+
+  BSP_LCD_FillRect(BSP_LCD_GetXSize()/3+2, 100, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(BSP_LCD_GetXSize()/3+2, 220+4, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(BSP_LCD_GetXSize()/3+2, 340+8, BSP_LCD_GetXSize()/3-2, 120);
+
+  BSP_LCD_FillRect(2*BSP_LCD_GetXSize()/3+2, 100, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(2*BSP_LCD_GetXSize()/3+2, 220+4, BSP_LCD_GetXSize()/3-2, 120);
+  BSP_LCD_FillRect(2*BSP_LCD_GetXSize()/3+2, 340+8, BSP_LCD_GetXSize()/3-2, 120);
+
   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
   BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+
+  BSP_LCD_DisplayStringAt(90, 105, (uint8_t *)"RPM", LEFT_MODE);
+  BSP_LCD_DisplayStringAt(BSP_LCD_GetXSize()/3+2+90, 105, (uint8_t *)"KM/H", LEFT_MODE);
+  BSP_LCD_DisplayStringAt(2*BSP_LCD_GetXSize()/3+2+90, 105, (uint8_t *)"LOAD", LEFT_MODE);
+
+  BSP_LCD_DisplayStringAt(35, 105 + 120 + 4, (uint8_t *)"COOLANT TEMP", LEFT_MODE);
+  BSP_LCD_DisplayStringAt(BSP_LCD_GetXSize()/3+2+60, 105 + 120+4, (uint8_t *)"OIL TEMP", LEFT_MODE);
+  BSP_LCD_DisplayStringAt(2*BSP_LCD_GetXSize()/3+2+60, 105 + 120+4, (uint8_t *)"AIR TEMP", LEFT_MODE);
   //BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 30, (uint8_t *)"Press User button to start :", CENTER_MODE);
+
 
   /* USER CODE END 2 */
 
@@ -354,7 +392,7 @@ int main(void)
   osKernelInitialize();
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+  mutex = osMutexNew(NULL);
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -366,7 +404,7 @@ int main(void)
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
+  mid_MsgQueue = osMessageQueueNew	(16, sizeof(CAN_OBD2_MSGQUEUE_OBJ_t), NULL);
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -377,11 +415,6 @@ int main(void)
   /* add threads, ... */
   Task1Handle = osThreadNew(Task1, NULL, &Task1_attributes);
   Task2Handle = osThreadNew(Task2, NULL, &Task2_attributes);
-
-  mid_MsgQueue = osMessageQueueNew	(16, sizeof(MSGQUEUE_OBJ_t), NULL);
-  mutex = osMutexNew(NULL);
-
-
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -624,46 +657,112 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void Task1(void *argument)
 {
   /* USER CODE BEGIN 5 */
-  MSGQUEUE_OBJ_t queue_element;
-  queue_element.Idx = 1;
-  int i = 0;
+  CAN_OBD2_MSGQUEUE_OBJ_t queue_data;
+  osStatus_t status = osOK;
+  uint32_t size;
+  uint8_t pid;
+
+  float fvalue;
+  uint32_t ui32value;
+  uint8_t* obd_response[8];
+
+
+
   /* Infinite loop */
   for(;;)
   {
-    osDelay(400);
-    i++;
+	osDelay(100);
+    //size = osMessageQueueGetCount(mid_MsgQueue);
+    //if (size != 0)
+	status = osMessageQueueGet(mid_MsgQueue, &queue_data, NULL, osWaitForever);
+    if (status == osOK){
+    	//pid = queue_data.pid - 0x40;	// ECU responds same as query, except that 40h is added to the service value (PID)
+    	pid = queue_data.pid;
 
-    osMutexAcquire(mutex, osWaitForever);
-    count ++;
-    osMutexRelease(mutex);
-    sprintf((queue_element.buffer) , "Task %d ti posilja: %d", queue_element.Idx, count);
-    osMessageQueuePut(mid_MsgQueue, &queue_element, 0U, osWaitForever);
+    	switch (pid){
+    	case OBD2_PID_PIDS_SUPPORTED_01_20:
+    		break;
+    	case OBD2_PID_FUEL_SYS_STATUS:
+    		break;
+    	case OBD2_PID_ENGINE_COOLANT_TEMP:
+    		ui32value = OBD2DecodeEngineCoolantTemp(queue_data.OBDData);
+    		sprintf(obd_response, "%d", ui32value);
+    		BSP_LCD_DisplayStringAt(90, 105 + 160 + 4, obd_response, LEFT_MODE);
+    		break;
+    	case OBD2_PID_FUEL_PRESSURE:
+    		break;
+    	case OBD2_PID_ENGINE_SPEED:
+    		ui32value = OBD2DecodeEngineSpeed(queue_data.OBDData);
+    		sprintf(obd_response, "%d", ui32value);
+    		BSP_LCD_DisplayStringAt(90, 145, obd_response, LEFT_MODE);
+    		break;
+    	case OBD2_PID_VEHICLE_SPEED:
+    		ui32value = OBD2DecodeVehicleSpeed(queue_data.OBDData);
+    		sprintf(obd_response, "%d", ui32value);
+    		BSP_LCD_DisplayStringAt(BSP_LCD_GetXSize()/3+2+90, 145, obd_response, LEFT_MODE);
 
-    //BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)"   Task 1     ", CENTER_MODE);
+    		break;
+    	case OBD2_PID_ENGINE_LOAD:
+    		fvalue = OBD2DecodeEngineLoad(queue_data.OBDData);
+    		sprintf(obd_response, "%.1f %", fvalue);
+    		BSP_LCD_DisplayStringAt(2*BSP_LCD_GetXSize()/3+2+90, 145, obd_response, LEFT_MODE);
+
+    		break;
+    	case OBD2_PID_INTAKE_AIR_TEMP:
+    		ui32value = OBD2DecodeIntakeAirTemp(queue_data.OBDData);
+    		sprintf(obd_response, "%d", ui32value);
+    		BSP_LCD_DisplayStringAt(2*BSP_LCD_GetXSize()/3+2+90, 105 + 160 + 4, obd_response, LEFT_MODE);
+    		break;
+    	case OBD2_PID_THROTTLE_POSITION:
+    		break;
+    	case OBD2_PID_ENGINE_OIL_TEMP:
+    		ui32value = OBD2DecodeOilTemp(queue_data.OBDData);
+    		sprintf(obd_response, "%d", ui32value);
+    		BSP_LCD_DisplayStringAt(BSP_LCD_GetXSize()/3+2+90, 105 + 160 + 4, obd_response, LEFT_MODE);
+    		break;
+    	case OBD2_PID_ENGINE_FUEL_RATE:
+    		break;
+    	default:
+    		break;
+    	}
+
+    }
   }
-  /* USER CODE END 5 */
+
 }
 
 
 void Task2(void *argument)
 {
   /* USER CODE BEGIN 5 */
-  MSGQUEUE_OBJ_t queue_element;
-  queue_element.Idx = 2;
-  int i = 0;
+  CAN_OBD2_MSGQUEUE_OBJ_t queue_element;
+  uint32_t size;
+  osStatus_t osstatus;
+
   /* Infinite loop */
   for(;;)
   {
-	  osDelay(550);
-	  i--;
-	  osMutexAcquire(mutex, osWaitForever);
-      count ++;
-      osMutexRelease(mutex);
-	  sprintf((queue_element.buffer) , "Task %d ti posilja: %d", queue_element.Idx, count);
-	  osMessageQueuePut(mid_MsgQueue, &queue_element, 0U, osWaitForever);
-
+	  OBD2_SendQuery(0x01, OBD2_PID_ENGINE_LOAD);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_ENGINE_COOLANT_TEMP);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_FUEL_PRESSURE);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_ENGINE_SPEED);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_VEHICLE_SPEED);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_INTAKE_AIR_TEMP);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_THROTTLE_POSITION);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_FUEL_TYPE);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_ENGINE_OIL_TEMP);
+	  osDelay(50);
+	  OBD2_SendQuery(0x01, OBD2_PID_ENGINE_FUEL_RATE);
+	  osDelay(50);
   }
-  /* USER CODE END 5 */
 }
 
 /* USER CODE END 4 */
@@ -678,14 +777,14 @@ void Task2(void *argument)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
-	MSGQUEUE_OBJ_t queue_element;
+
   /* Infinite loop */
   for(;;)
   {
     osDelay(50);
-    osMessageQueueGet(mid_MsgQueue, &queue_element, 0U, 0U);
+    //osMessageQueueGet(mid_MsgQueue, &queue_element, 0U, 0U);
     //BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)"Default Task", CENTER_MODE);
-    BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)(queue_element.buffer), CENTER_MODE);
+    //BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize() / 2 + 50, (uint8_t *)(queue_element.buffer), CENTER_MODE);
     osDelay(50);
   }
   /* USER CODE END 5 */

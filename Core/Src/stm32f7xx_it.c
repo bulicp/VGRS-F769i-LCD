@@ -39,6 +39,7 @@ extern TIM_HandleTypeDef    			TIM3Handle;
 extern UART_HandleTypeDef 				UART1Handle;
 extern DMA_HandleTypeDef    			DMA2_SDRAM_Handle;
 extern DMA_HandleTypeDef    			DMA2_UART1_Handle;
+extern CAN_HandleTypeDef     			CanHandle;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -319,6 +320,17 @@ void BSP_SDMMC_IRQHandler(void)
   HAL_SD_IRQHandler(&uSdHandle);
 }
 
+
+
+/**
+* @brief  This function handles CAN1 RX0 interrupt request.
+* @param  None
+* @retval None
+*/
+void CAN1_RX0_IRQHandler(void)
+{
+  HAL_CAN_IRQHandler(&CanHandle);
+}
 
 
 /* USER CODE END 1 */

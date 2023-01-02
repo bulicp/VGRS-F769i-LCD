@@ -239,6 +239,16 @@ void SDRAM_write_matrix(void){
 	}
 }
 
+
+void SDRAM_write_const(void){
+	volatile uint32_t address;
+	for (int i = 0x0; i<0x002EE00; i++) {
+		address = PA3_SDRAM_DEVICE_ADDR_RW + (i*4);
+		// ARGB
+		*(uint32_t*)address = 0xffffff00;
+	}
+}
+
 void SDRAM_mat_row_access_test(void){
 	volatile uint32_t address;
 

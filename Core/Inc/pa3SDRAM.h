@@ -40,7 +40,8 @@
 // 128 Mbit 4-bank SDRAM = 16MB 4-bank SDRAM, 4 MB per bank, PB, 2022
 // 4 MB = 4 * 16^5 = 4*2^20
 
-#define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00400000) // 4MB offset
+ #define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00000000) // 4MB offset
+//#define PA3_SDRAM_DEVICE_ADDR_RW  ((uint32_t)(0xC0000000) + 0x00400000) // 4MB offset
 #define SDRAM_DEVICE_SIZE  ((uint32_t)0x1000000)  /* SDRAM device size in MBytes, 16 MB */
 
 
@@ -87,6 +88,7 @@ uint8_t SDRAM_compare_matrices(void);
 void SDRAM_mat_row_access_test(void);
 void SDRAM_mat_col_access_test(void);
 void SDRAM_DMA_mat_row_access_test(void);
+void SDRAM_write_const(void);
 
 
 
